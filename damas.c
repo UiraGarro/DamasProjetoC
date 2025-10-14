@@ -44,7 +44,6 @@ int pecaDama(TipoPeca peca) {
     return peca == DAMA_BRANCA || peca == DAMA_PRETA;
 }
 
-// inicialização do jogo
 Jogo inicializarJogo() {
     Jogo jogo;
     jogo.turno = 0; // brancas começam
@@ -71,20 +70,31 @@ Jogo inicializarJogo() {
     return jogo;
 }
 
-// tabuleiro
-
 void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas) {
+    int invertido = jogo.turno; // 0 = brancas, 1 = pretas
     printf("\n===============================================================\n");
-    printf(" Jogador 2 (X Pretas) - Pontos: %d\tJogador 1 (O Brancas) - Pontos: %d\n",
-           jogadorPretas.pontuacao, jogadorBrancas.pontuacao);
+
+    if (!invertido)
+        printf(" Cima: %s (X Pretas) - Pontos: %d\n", jogadorPretas.nome, jogadorPretas.pontuacao);
+    else
+        printf(" Cima: %s (O Brancas) - Pontos: %d\n", jogadorBrancas.nome, jogadorBrancas.pontuacao);
+
     printf("===============================================================\n\n");
 
-    printf("     A   B   C   D   E   F   G   H\n");
+    if (!invertido)
+        printf("     A   B   C   D   E   F   G   H\n");
+    else
+        printf("     H   G   F   E   D   C   B   A\n");
+
     printf("   +---+---+---+---+---+---+---+---+\n");
 
-    for (int linha = 0; linha < MAX; linha++) {
-        printf(" %d |", linha + 1);
-        for (int coluna = 0; coluna < MAX; coluna++) {
+    for (int i = 0; i < MAX; i++) {
+        int linha = invertido ? (MAX - 1 - i) : i;
+        printf(" %d |", invertido ? (MAX - i) : (i + 1));
+
+        for (int j = 0; j < MAX; j++) {
+            int coluna = invertido ? (MAX - 1 - j) : j;
+
             TipoPeca peca = jogo.tabuleiro[linha][coluna].peca;
             const char* simbolo = " ";
 
@@ -98,20 +108,27 @@ void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas) {
 
             printf(" %s |", simbolo);
         }
-        printf(" %d\n", linha + 1);
 
-        if (linha < MAX - 1)
-            printf("   +---+---+---+---+---+---+---+---+\n");
+        printf(" %d\n", invertido ? (MAX - i) : (i + 1));
+        printf("   +---+---+---+---+---+---+---+---+\n");
     }
 
-    printf("   +---+---+---+---+---+---+---+---+\n");
-    printf("     A   B   C   D   E   F   G   H\n\n");
+    if (!invertido)
+        printf("     A   B   C   D   E   F   G   H\n\n");
+    else
+        printf("     H   G   F   E   D   C   B   A\n\n");
+
+    if (!invertido)
+        printf(" Baixo: %s (O Brancas) - Pontos: %d\n", jogadorBrancas.nome, jogadorBrancas.pontuacao);
+    else
+        printf(" Baixo: %s (X Pretas) - Pontos: %d\n", jogadorPretas.nome, jogadorPretas.pontuacao);
+
+    printf("===============================================================\n");
 }
 
-
 int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem,
-              int linhaDestino, int colunaDestino,
-              Jogador *jogadorBrancas, Jogador *jogadorPretas) {
+    int linhaDestino, int colunaDestino,
+    Jogador *jogadorBrancas, Jogador *jogadorPretas) {
     
     TipoPeca pecaSelecionada = jogo->tabuleiro[linhaOrigem][colunaOrigem].peca;
 
@@ -120,7 +137,6 @@ int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem,
         return 0;
     }
 
-    // Verifica turno
     if (jogo->turno == 0 && !pecaBranca(pecaSelecionada)) {
         printf("❌ É o turno das brancas!\n");
         return 0;
