@@ -233,14 +233,30 @@ int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem,
     }
 
     jogo->turno = !jogo->turno;
+
+    
+    for (int coluna = 0; coluna < MAX; coluna++) {
+        if (jogo->tabuleiro[0][coluna].peca == PECA_BRANCA)
+            jogo->tabuleiro[0][coluna].peca = DAMA_BRANCA;
+        if (jogo->tabuleiro[MAX-1][coluna].peca == PECA_PRETA)
+            jogo->tabuleiro[MAX-1][coluna].peca = DAMA_PRETA;
+    }
+
     return 1;
 }
 
 int main() { 
     Jogo jogo = inicializarJogo(); 
-    Jogador jogadorBrancas = {"Jogador 1", 0}; 
-    Jogador jogadorPretas = {"Jogador 2", 0}; 
-    
+    Jogador jogadorBrancas, jogadorPretas;
+
+    printf("Digite o nome do jogador das Brancas: ");
+    scanf("%49s", jogadorBrancas.nome);
+    jogadorBrancas.pontuacao = 0;
+
+    printf("Digite o nome do jogador das Pretas: ");
+    scanf("%49s", jogadorPretas.nome);
+    jogadorPretas.pontuacao = 0;
+
     char posicaoOrigem[3], posicaoDestino[3]; 
     
     while (1) { exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas); 
@@ -265,7 +281,5 @@ int main() {
 }
 
 // Coisas a fazer
-//input de nome de jogador
-// fazer promoção automatica
 // verificar se alguem ganhou
 //"IA" modo de movimentos random pros sem amigos
