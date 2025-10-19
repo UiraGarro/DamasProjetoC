@@ -291,9 +291,11 @@ void salvarHistorico(Jogo *jogo) {
     printf("\n📜 Histórico salvo em 'historico.txt'.\n");
 }
 
-int main() { 
-    Jogo jogo = inicializarJogo(); 
+int main() {
+    Jogo jogo;
     Jogador jogadorBrancas, jogadorPretas;
+    char posicaoOrigem[3], posicaoDestino[3];
+    char jogarNovamente;
 
     printf("Digite o nome do jogador das Brancas: ");
     scanf("%49s", jogadorBrancas.nome);
@@ -303,53 +305,43 @@ int main() {
     scanf("%49s", jogadorPretas.nome);
     jogadorPretas.pontuacao = 0;
 
-    char posicaoOrigem[3], posicaoDestino[3]; 
-    
-    while (1) { exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas); 
-    printf("Turno de %s (%s)\n", 
-        jogo.turno == 0 ? jogadorBrancas.nome : 
-    jogadorPretas.nome, 
-        jogo.turno == 0 ? "O Brancas" : "X Pretas"); 
+    do {
+        jogo = inicializarJogo();
 
-    printf("Mover de (ex: D3): "); 
-    scanf("%2s", posicaoOrigem); 
-    printf("Para (ex: E4): "); 
-    scanf("%2s", posicaoDestino); 
+        while (1) {
+            exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
 
-    int colunaOrigem = toupper(posicaoOrigem[0]) - 'A'; 
-    int linhaOrigem = posicaoOrigem[1] - '1'; 
-    int colunaDestino = toupper(posicaoDestino[0]) - 'A'; 
-    int linhaDestino = posicaoDestino[1] - '1'; 
-    moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino, 
-    colunaDestino, 
-        &jogadorBrancas, &jogadorPretas); 
-    }
+            printf("Turno de %s (%s)\n",
+                   jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,
+                   jogo.turno == 0 ? "O Brancas" : "X Pretas");
 
-    while (1) {
-        exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
+            printf("Mover de (ex: D3 ou S para sair): ");
+            scanf("%2s", posicaoOrigem);
 
-        printf("Turno de %s (%s)\n",
-               jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,
-               jogo.turno == 0 ? "O Brancas" : "X Pretas");
+            if (toupper(posicaoOrigem[0]) == 'S') {
+                salvarHistorico(&jogo);
+                printf("\nDeseja jogar novamente? (S/N): ");
+                scanf(" %c", &jogarNovamente);
+                jogarNovamente = toupper(jogarNovamente);
+                break; 
+            }
 
-        printf("Mover de (ex: D3 ou S para sair): ");
-        scanf("%2s", posicaoOrigem);
-        if (toupper(posicaoOrigem[0]) == 'S') {
-            salvarHistorico(&jogo);
-            break;
+            printf("Para (ex: E4): ");
+            scanf("%2s", posicaoDestino);
+
+            int colunaOrigem = toupper(posicaoOrigem[0]) - 'A';
+            int linhaOrigem = posicaoOrigem[1] - '1';
+            int colunaDestino = toupper(posicaoDestino[0]) - 'A';
+            int linhaDestino = posicaoDestino[1] - '1';
+
+            moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino,
+                      colunaDestino, &jogadorBrancas, &jogadorPretas);
         }
 
-        printf("Para (ex: E4): ");
-        scanf("%2s", posicaoDestino);
+    } while (jogarNovamente == 'S');
 
-        int colunaOrigem = toupper(posicaoOrigem[0]) - 'A';
-        int linhaOrigem = posicaoOrigem[1] - '1';
-        int colunaDestino = toupper(posicaoDestino[0]) - 'A';
-        int linhaDestino = posicaoDestino[1] - '1';
-
-        moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino,
-                colunaDestino, &jogadorBrancas, &jogadorPretas);
-    }
+    printf("\n Obrigado por jogar!\n");
+    return 0;
 }
 
 // Coisas a fazer
