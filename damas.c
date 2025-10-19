@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define MAX 8
 #define MAX_JOGADAS 200
-
 
 typedef enum {
     VAZIO,
@@ -19,11 +20,11 @@ typedef struct {
 } Casa;
 
 typedef struct {
-    Casa tabuleiro[MAX][MAX];
-    int turno; // 0 = brancas, 1 = pretas
-    Jogada historico[MAX_JOGADAS];
-    int numJogadas;
-} Jogo;
+    char jogador[50];
+    char origem[3];
+    char destino[3];
+    char peca[10];
+} Jogada;
 
 typedef struct {
     char nome[50];
@@ -31,11 +32,11 @@ typedef struct {
 } Jogador;
 
 typedef struct {
-    char jogador[50];
-    char origem[3];
-    char destino[3];
-    char peca[10];
-} Jogada;
+    Casa tabuleiro[MAX][MAX];
+    int turno;
+    Jogada historico[MAX_JOGADAS];
+    int numJogadas;
+} Jogo;
 
 int posicaoValida(int linha, int coluna) {
     return linha >= 0 && linha < MAX && coluna >= 0 && coluna < MAX;
@@ -291,6 +292,97 @@ void salvarHistorico(Jogo *jogo) {
     printf("\n📜 Histórico salvo em 'historico.txt'.\n");
 }
 
+int verificarVencedor(Jogo *jogo, Jogador *jogadorBrancas, Jogador *jogadorPretas) {
+    int temBrancas = 0, temPretas = 0;
+
+    for (int i = 0; i < MAX; i++) {
+        for (int j = 0; j < MAX; j++) {
+            TipoPeca peca = jogo->tabuleiro[i][j].peca;
+
+            if (pecaBranca(peca)) temBrancas = 1;
+            if (pecaPreta(peca)) temPretas = 1;
+        }
+    }
+
+    if (!temPretas) {
+        printf("\n🏆 %s (Brancas) venceu o jogo!\n", jogadorBrancas->nome);
+        salvarHistorico(jogo);
+        return 1;
+    }
+    else if (!temBrancas) {
+        printf("\n🏆 %s (Pretas) venceu o jogo!\n", jogadorPretas->nome);
+        salvarHistorico(jogo);
+        return 1;
+    }
+
+    return 0;
+}
+
+void jogarIA(Jogo *jogo, Jogador *jogadorIA, Jogador *jogadorOponente) {
+    typedef struct {
+        int linhaOrigem, colunaOrigem;
+        int linhaDestino, colunaDestino;
+    } Movimento;
+
+    Movimento movimentosValidos[200];
+    int numMovimentos = 0;
+
+    for (int linha = 0; linha < MAX; linha++) {
+        for (int coluna = 0; coluna < MAX; coluna++) {
+            TipoPeca peca = jogo->tabuleiro[linha][coluna].peca;
+
+            if (!pecaPreta(peca)) continue;
+
+            int direcoes[4][2] = {
+                {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+            };
+
+            for (int d = 0; d < 4; d++) {
+                int dl = direcoes[d][0];
+                int dc = direcoes[d][1];
+
+                int novaLinha = linha + dl;
+                int novaColuna = coluna + dc;
+
+                if (posicaoValida(novaLinha, novaColuna) &&
+                    jogo->tabuleiro[novaLinha][novaColuna].peca == VAZIO &&
+                    (!pecaDama(peca) ? dl == 1 : 1)) {
+                    movimentosValidos[numMovimentos++] = (Movimento){linha, coluna, novaLinha, novaColuna};
+                }
+
+                int captLinha = linha + 2 * dl;
+                int captColuna = coluna + 2 * dc;
+                int meioLinha = linha + dl;
+                int meioColuna = coluna + dc;
+
+                if (posicaoValida(captLinha, captColuna) &&
+                    jogo->tabuleiro[captLinha][captColuna].peca == VAZIO &&
+                    ((pecaBranca(jogo->tabuleiro[meioLinha][meioColuna].peca)) &&
+                     (pecaPreta(peca)))) {
+                    movimentosValidos[numMovimentos++] = (Movimento){linha, coluna, captLinha, captColuna};
+                }
+            }
+        }
+    }
+
+    if (numMovimentos == 0) {
+        printf("\n🤖 IA não pode mover!\n");
+        return;
+    }
+
+    srand(time(NULL));
+    Movimento escolhido = movimentosValidos[rand() % numMovimentos];
+
+    moverPeca(jogo,
+              escolhido.linhaOrigem, escolhido.colunaOrigem,
+              escolhido.linhaDestino, escolhido.colunaDestino,
+              jogadorOponente, jogadorIA);
+
+    printf("\n🤖 IA moveu de %c%d para %c%d\n",
+           'A' + escolhido.colunaOrigem, escolhido.linhaOrigem + 1,
+           'A' + escolhido.colunaDestino, escolhido.linhaDestino + 1);
+}
+
 int main() {
     Jogo jogo;
     Jogador jogadorBrancas, jogadorPretas;
@@ -305,37 +397,55 @@ int main() {
     scanf("%49s", jogadorPretas.nome);
     jogadorPretas.pontuacao = 0;
 
+    int modoSolo = 0;
+    printf("\nDeseja jogar contra o computador? (S/N): ");
+    char resposta;
+    scanf(" %c", &resposta);
+    modoSolo = (toupper(resposta) == 'S');
+
     do {
         jogo = inicializarJogo();
 
         while (1) {
-            exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
-
-            printf("Turno de %s (%s)\n",
-                   jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,
-                   jogo.turno == 0 ? "O Brancas" : "X Pretas");
-
-            printf("Mover de (ex: D3 ou S para sair): ");
-            scanf("%2s", posicaoOrigem);
-
-            if (toupper(posicaoOrigem[0]) == 'S') {
-                salvarHistorico(&jogo);
+            if (jogo.turno == 0 || !modoSolo) {
+                exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
+        
+                printf("Turno de %s (%s)\n",
+                       jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,
+                       jogo.turno == 0 ? "O Brancas" : "X Pretas");
+        
+                printf("Mover de (ex: D3 ou S para sair): ");
+                scanf("%2s", posicaoOrigem);
+        
+                if (toupper(posicaoOrigem[0]) == 'S') {
+                    salvarHistorico(&jogo);
+                    printf("\nDeseja jogar novamente? (S/N): ");
+                    scanf(" %c", &jogarNovamente);
+                    jogarNovamente = toupper(jogarNovamente);
+                    break;
+                }
+        
+                printf("Para (ex: E4): ");
+                scanf("%2s", posicaoDestino);
+        
+                int colunaOrigem = toupper(posicaoOrigem[0]) - 'A';
+                int linhaOrigem = posicaoOrigem[1] - '1';
+                int colunaDestino = toupper(posicaoDestino[0]) - 'A';
+                int linhaDestino = posicaoDestino[1] - '1';
+        
+                moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino,
+                          colunaDestino, &jogadorBrancas, &jogadorPretas);
+        
+            } else {
+                jogarIA(&jogo, &jogadorPretas, &jogadorBrancas);
+            }
+        
+            if (verificarVencedor(&jogo, &jogadorBrancas, &jogadorPretas)) {
                 printf("\nDeseja jogar novamente? (S/N): ");
                 scanf(" %c", &jogarNovamente);
                 jogarNovamente = toupper(jogarNovamente);
-                break; 
+                break;
             }
-
-            printf("Para (ex: E4): ");
-            scanf("%2s", posicaoDestino);
-
-            int colunaOrigem = toupper(posicaoOrigem[0]) - 'A';
-            int linhaOrigem = posicaoOrigem[1] - '1';
-            int colunaDestino = toupper(posicaoDestino[0]) - 'A';
-            int linhaDestino = posicaoDestino[1] - '1';
-
-            moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino,
-                      colunaDestino, &jogadorBrancas, &jogadorPretas);
         }
 
     } while (jogarNovamente == 'S');
@@ -343,7 +453,3 @@ int main() {
     printf("\n Obrigado por jogar!\n");
     return 0;
 }
-
-// Coisas a fazer
-// verificar se alguem ganhou
-//"IA" modo de movimentos random pros sem amigos
