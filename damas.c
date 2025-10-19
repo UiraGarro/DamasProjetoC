@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #define MAX 8
+#define MAX_JOGADAS 200
 
 
 typedef enum {
@@ -20,6 +21,8 @@ typedef struct {
 typedef struct {
     Casa tabuleiro[MAX][MAX];
     int turno; // 0 = brancas, 1 = pretas
+    Jogada historico[MAX_JOGADAS];
+    int numJogadas;
 } Jogo;
 
 typedef struct {
@@ -27,6 +30,12 @@ typedef struct {
     int pontuacao;
 } Jogador;
 
+typedef struct {
+    char jogador[50];
+    char origem[3];
+    char destino[3];
+    char peca[10];
+} Jogada;
 
 int posicaoValida(int linha, int coluna) {
     return linha >= 0 && linha < MAX && coluna >= 0 && coluna < MAX;
@@ -47,6 +56,7 @@ int pecaDama(TipoPeca peca) {
 Jogo inicializarJogo() {
     Jogo jogo;
     jogo.turno = 0; // brancas começam
+    jogo.numJogadas = 0;
 
     for (int linha = 0; linha < MAX; linha++) {
         for (int coluna = 0; coluna < MAX; coluna++) {
@@ -232,6 +242,24 @@ int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem,
         }
     }
 
+        // Registrar jogada no histórico
+    if (jogo->numJogadas < MAX_JOGADAS) {
+        Jogada *j = &jogo->historico[jogo->numJogadas];
+        strcpy(j->jogador, jogo->turno == 0 ? jogadorBrancas->nome : jogadorPretas->nome);
+        sprintf(j->origem, "%c%d", 'A' + colunaOrigem, linhaOrigem + 1);
+        sprintf(j->destino, "%c%d", 'A' + colunaDestino, linhaDestino + 1);
+
+        switch (pecaSelecionada) {
+            case PECA_BRANCA: strcpy(j->peca, "Peça Branca"); break;
+            case PECA_PRETA: strcpy(j->peca, "Peça Preta"); break;
+            case DAMA_BRANCA: strcpy(j->peca, "Dama Branca"); break;
+            case DAMA_PRETA: strcpy(j->peca, "Dama Preta"); break;
+            default: strcpy(j->peca, "Desconhecida"); break;
+        }
+
+        jogo->numJogadas++;
+    }
+
     jogo->turno = !jogo->turno;
 
     
@@ -243,6 +271,24 @@ int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem,
     }
 
     return 1;
+}
+
+void salvarHistorico(Jogo *jogo) {
+    FILE *arquivo = fopen("historico.txt", "w");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo de histórico!\n");
+        return;
+    }
+
+    fprintf(arquivo, "===== HISTÓRICO DE JOGADAS =====\n\n");
+    for (int i = 0; i < jogo->numJogadas; i++) {
+        Jogada j = jogo->historico[i];
+        fprintf(arquivo, "%2d. %s moveu %s de %s para %s\n",
+                i + 1, j.jogador, j.peca, j.origem, j.destino);
+    }
+
+    fclose(arquivo);
+    printf("\n📜 Histórico salvo em 'historico.txt'.\n");
 }
 
 int main() { 
@@ -277,7 +323,33 @@ int main() {
     moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino, 
     colunaDestino, 
         &jogadorBrancas, &jogadorPretas); 
-    } 
+    }
+
+    while (1) {
+        exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
+
+        printf("Turno de %s (%s)\n",
+               jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,
+               jogo.turno == 0 ? "O Brancas" : "X Pretas");
+
+        printf("Mover de (ex: D3 ou S para sair): ");
+        scanf("%2s", posicaoOrigem);
+        if (toupper(posicaoOrigem[0]) == 'S') {
+            salvarHistorico(&jogo);
+            break;
+        }
+
+        printf("Para (ex: E4): ");
+        scanf("%2s", posicaoDestino);
+
+        int colunaOrigem = toupper(posicaoOrigem[0]) - 'A';
+        int linhaOrigem = posicaoOrigem[1] - '1';
+        int colunaDestino = toupper(posicaoDestino[0]) - 'A';
+        int linhaDestino = posicaoDestino[1] - '1';
+
+        moverPeca(&jogo, linhaOrigem, colunaOrigem, linhaDestino,
+                colunaDestino, &jogadorBrancas, &jogadorPretas);
+    }
 }
 
 // Coisas a fazer
