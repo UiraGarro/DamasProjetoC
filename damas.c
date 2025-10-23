@@ -366,7 +366,7 @@ void jogarIA(Jogo *jogo, Jogador *jogadorIA, Jogador *jogadorOponente) {
     }
 
     if (numMovimentos == 0) {
-        printf("\n🤖 IA não pode mover!\n");
+        printf("\n IA não pode mover!\n");
         return;
     }
 
@@ -378,7 +378,7 @@ void jogarIA(Jogo *jogo, Jogador *jogadorIA, Jogador *jogadorOponente) {
               escolhido.linhaDestino, escolhido.colunaDestino,
               jogadorOponente, jogadorIA);
 
-    printf("\n🤖 IA moveu de %c%d para %c%d\n",
+    printf("\n IA moveu de %c%d para %c%d\n",
            'A' + escolhido.colunaOrigem, escolhido.linhaOrigem + 1,
            'A' + escolhido.colunaDestino, escolhido.linhaDestino + 1);
 }
@@ -393,16 +393,24 @@ int main() {
     scanf("%49s", jogadorBrancas.nome);
     jogadorBrancas.pontuacao = 0;
 
-    printf("Digite o nome do jogador das Pretas: ");
-    scanf("%49s", jogadorPretas.nome);
-    jogadorPretas.pontuacao = 0;
-
     int modoSolo = 0;
     printf("\nDeseja jogar contra o computador? (S/N): ");
     char resposta;
     scanf(" %c", &resposta);
-    modoSolo = (toupper(resposta) == 'S');
 
+    if (toupper(resposta) == 'N') {
+        modoSolo = 0;
+        printf("Digite o nome do jogador das Pretas: ");
+        scanf("%49s", jogadorPretas.nome);
+        jogadorPretas.pontuacao = 0;
+    } else if (toupper(resposta) == 'S'){
+        modoSolo = (toupper(resposta) == 'S');
+        strcpy(jogadorPretas.nome, "Computador");
+        jogadorPretas.pontuacao = 0;
+    } else {
+        printf("Resposta inválida. Encerrando o jogo.\n");
+        return 1;
+    }
     do {
         jogo = inicializarJogo();
 
