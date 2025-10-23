@@ -24,21 +24,11 @@ make
 
 #### Alternativa: compilação direta com `gcc` (sem modularização)
 
-Se preferir não usar a versão modularizada com vários arquivos `.c` e o `Makefile`, é possível compilar diretamente com o `gcc` — útil quando você tem todo o código em um único arquivo (por exemplo `damas.c`) ou quer compilar todos os arquivos `.c` de uma vez. Exemplos:
-
-* Se todo o código estiver em um único arquivo:
+Se preferir não usar a versão modularizada com vários arquivos `.c` e o `Makefile`, é possível compilar diretamente com o `gcc`.
 
 ```bash
-gcc -std=c11 -Wall -Wextra -o damas damas.c
+gcc damas.c -o damas
 ```
-
-* Compilar todos os módulos (`.c`) diretamente com `gcc` (equivalente ao que o Makefile faz):
-
-```bash
-gcc -std=c11 -Wall -Wextra -o damas main.c jogo.c ia.c arquivo.c utils.c
-```
-
-> Use essa alternativa quando quiser rodar o jogo sem gerar um projeto modularizado com headers separados. Ambas as formas — `make` ou `gcc` direto — geram o executável `damas`.
 
 ### Executando
 
@@ -91,14 +81,6 @@ make clean
 * Compilador GCC
 * Sistema operacional Windows
 * Terminal com suporte a caracteres ASCII
-
-## 👥 Contribuindo
-
-1. Fork o projeto
-2. Crie sua branch de feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
 
 ---
 
