@@ -1,76 +1,105 @@
 # ♟️ Jogo de Damas em C
 
-Um jogo de **Damas (Checkers)** desenvolvido em **C**, jogado no terminal entre dois jogadores.  
-Possui visualização do tabuleiro, pontuação, captura de peças, promoção para dama, histórico de jogadas e opção de reiniciar a partida.
+Um jogo de **Damas (Checkers)** desenvolvido em **C**, com suporte para dois jogadores ou contra IA.
+Possui visualização do tabuleiro, pontuação, captura de peças, promoção para dama e histórico de jogadas.
 
----
+## 🎯 Funcionalidades
 
-## 🚀 Funcionalidades
+* Tabuleiro **8x8** com visualização dinâmica
+* Peças pretas (**X**) e brancas (**O**)
+* Damas promovidas (**D** brancas / **Q** pretas)
+* Sistema de **captura de peças**
+* **Modo single player** contra IA
+* **Histórico** de movimentos
+* Sistema de **pontuação**
+* Interface amigável no terminal
 
-- Tabuleiro **8x8** com peças pretas (**X**) e brancas (**O**)
-- Alternância automática de turnos entre os jogadores
-- Movimentação e captura de peças conforme regras clássicas
-- Promoção automática para **Dama** (**D / Q**)
-- Sistema de **pontuação por captura**
-- **Histórico de jogadas** salvo no arquivo `historico.txt`
-- Opção de **jogar novamente** após encerrar a partida
+## 🎮 Como Jogar
 
----
+### Compilando
 
-## 🕹️ Como Jogar
+```bash
+make
+```
 
-### 1. Compilar o programa
-Abra o terminal e execute:
+#### Alternativa: compilação direta com `gcc` (sem modularização)
 
-gcc damas.c -o damas
+Se preferir não usar a versão modularizada com vários arquivos `.c` e o `Makefile`, é possível compilar diretamente com o `gcc` — útil quando você tem todo o código em um único arquivo (por exemplo `damas.c`) ou quer compilar todos os arquivos `.c` de uma vez. Exemplos:
 
-shell
-Copiar código
+* Se todo o código estiver em um único arquivo:
 
-### 2. Executar o jogo
+```bash
+gcc -std=c11 -Wall -Wextra -o damas damas.c
+```
+
+* Compilar todos os módulos (`.c`) diretamente com `gcc` (equivalente ao que o Makefile faz):
+
+```bash
+gcc -std=c11 -Wall -Wextra -o damas main.c jogo.c ia.c arquivo.c utils.c
+```
+
+> Use essa alternativa quando quiser rodar o jogo sem gerar um projeto modularizado com headers separados. Ambas as formas — `make` ou `gcc` direto — geram o executável `damas`.
+
+### Executando
+
+```bash
 ./damas
+```
 
-markdown
-Copiar código
+### Comandos do Jogo
 
-### 3. Jogar
-1. Digite os nomes dos jogadores (Brancas e Pretas)  
-2. Para movimentar uma peça:
-   - **Mover de**: digite a posição de origem (ex.: `D3`)  
-   - **Para**: digite a posição de destino (ex.: `E4`)  
-3. Para sair do jogo, digite **S** no campo “Mover de”
+1. Escolha o modo de jogo:
 
-### 4. Reiniciar ou encerrar
-Ao sair, o programa perguntará:
+   * Jogador vs Jogador
+   * Jogador vs Computador
 
-Deseja jogar novamente? (S/N):
+2. Para mover peças:
 
-yaml
-Copiar código
+   * Digite a posição de origem (ex: `D3`)
+   * Digite a posição de destino (ex: `E4`)
+   * Para sair, digite `S`
 
-- **S** → Reinicia o tabuleiro  
-- **N** → Encerra o jogo
+### Regras Básicas
+
+* Peças movem-se diagonalmente
+* Capturas são obrigatórias
+* Damas podem mover-se várias casas
+* Vence quem capturar todas as peças do oponente
+
+## 📁 Estrutura do Projeto
+
+```
+projeto/
+├── damas.h       # Definições e estruturas
+├── main.c        # Função principal
+├── jogo.c        # Lógica do jogo
+├── ia.c          # Inteligência artificial
+├── arquivo.c     # Manipulação de arquivos
+├── utils.c       # Funções utilitárias
+├── Makefile      # Compilação do projeto
+└── historico.txt # Registro de jogadas
+```
+
+## 🧹 Limpando Arquivos Compilados
+
+```bash
+make clean
+```
+
+## 💻 Requisitos
+
+* Compilador GCC
+* Sistema operacional Windows
+* Terminal com suporte a caracteres ASCII
+
+## 👥 Contribuindo
+
+1. Fork o projeto
+2. Crie sua branch de feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
 
 ---
 
-## 📜 Histórico
-
-Todas as jogadas são salvas automaticamente no arquivo `historico.txt`  
-> O arquivo é **sobrescrito** a cada nova partida
-
----
-
-## 🧑‍💻 Desenvolvido com
-
-- Linguagem **C**
-- Bibliotecas padrão: `stdio.h`, `ctype.h`, `stdlib.h`
-- Interface de texto (console)
-
----
-
-## 📦 Estrutura do Projeto
-
-Projeto-Damas/
-├── damas.c # Código principal do jogo
-├── historico.txt # Arquivo gerado com o histórico das jogadas
-└── README.md # Este arquivo
+Desenvolvido para a disciplina de Técnicas de Desenvolvimento de Algoritmos
