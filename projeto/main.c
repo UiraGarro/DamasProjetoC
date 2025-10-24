@@ -36,7 +36,7 @@ int main() {
 
         while (1) {
             if (jogo.turno == 0 || !modoSolo) {
-                exibirTabuleiro(jogo, jogadorBrancas, jogadorPretas);
+                exibirTabuleiro(&jogo, &jogadorBrancas, &jogadorPretas);
         
                 printf("Turno de %s (%s)\n",
                        jogo.turno == 0 ? jogadorBrancas.nome : jogadorPretas.nome,

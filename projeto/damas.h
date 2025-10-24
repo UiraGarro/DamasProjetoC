@@ -37,7 +37,7 @@ typedef struct {
 
 // Function declarations
 Jogo inicializarJogo(void);
-void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas);
+void exibirTabuleiro(Jogo *jogo, Jogador *jogadorBrancas, Jogador *jogadorPretas);
 int moverPeca(Jogo *jogo, int linhaOrigem, int colunaOrigem, int linhaDestino, int colunaDestino, Jogador *jogadorBrancas, Jogador *jogadorPretas);
 void salvarHistorico(Jogo *jogo);
 int verificarVencedor(Jogo *jogo, Jogador *jogadorBrancas, Jogador *jogadorPretas);

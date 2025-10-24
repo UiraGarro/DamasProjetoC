@@ -30,14 +30,14 @@ Jogo inicializarJogo() {
     return jogo;
 }
 
-void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas) {
-    int invertido = jogo.turno; // 0 = brancas, 1 = pretas
+void exibirTabuleiro(Jogo *jogo, Jogador *jogadorBrancas, Jogador *jogadorPretas) {
+    int invertido = jogo->turno; // 0 = brancas, 1 = pretas
     printf("\n===============================================================\n");
 
     if (!invertido)
-        printf(" Cima: %s (X Pretas) - Pontos: %d\n", jogadorPretas.nome, jogadorPretas.pontuacao);
+        printf(" Cima: %s (X Pretas) - Pontos: %d\n", jogadorPretas->nome, jogadorPretas->pontuacao);
     else
-        printf(" Cima: %s (O Brancas) - Pontos: %d\n", jogadorBrancas.nome, jogadorBrancas.pontuacao);
+        printf(" Cima: %s (O Brancas) - Pontos: %d\n", jogadorBrancas->nome, jogadorBrancas->pontuacao);
 
     printf("===============================================================\n\n");
 
@@ -55,7 +55,7 @@ void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas) {
         for (int j = 0; j < MAX; j++) {
             int coluna = invertido ? (MAX - 1 - j) : j;
 
-            TipoPeca peca = jogo.tabuleiro[linha][coluna].peca;
+            TipoPeca peca = jogo->tabuleiro[linha][coluna].peca;
             const char* simbolo = " ";
 
             switch (peca) {
@@ -79,9 +79,9 @@ void exibirTabuleiro(Jogo jogo, Jogador jogadorBrancas, Jogador jogadorPretas) {
         printf("     H   G   F   E   D   C   B   A\n\n");
 
     if (!invertido)
-        printf(" Baixo: %s (O Brancas) - Pontos: %d\n", jogadorBrancas.nome, jogadorBrancas.pontuacao);
+        printf(" Baixo: %s (O Brancas) - Pontos: %d\n", jogadorBrancas->nome, jogadorBrancas->pontuacao);
     else
-        printf(" Baixo: %s (X Pretas) - Pontos: %d\n", jogadorPretas.nome, jogadorPretas.pontuacao);
+        printf(" Baixo: %s (X Pretas) - Pontos: %d\n", jogadorPretas->nome, jogadorPretas->pontuacao);
 
     printf("===============================================================\n");
 }
